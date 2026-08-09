@@ -30,11 +30,11 @@ class board:
             self.y = y
         def piecemove(self,x:int,y:int) -> bool:
             if self.name == "P":
-                if self.y < y and self.x == x:
+                if y - self.y == 1 and self.x == x:
                     return True
                 return False
             if self.name == "p":
-                if self.y > y and self.x == x:
+                if self.y - y == 1 and self.x == x:
                     return True
                 return False
             if self.name == "B" or self.name == "b":
@@ -117,9 +117,93 @@ def check_place(piece_list,x:int,y:int) -> bool:
         return True
 def check_sight(piece_list,x_list,y_list) -> bool:
     for i in range(len(x_list)):
-        if not check_place(x_list[i],y_list[i]):
+        if not check_place(piece_list,x_list[i],y_list[i]):
             return False
     return True
+def check_line_sight(piece_list,current_x:int,x:int,current_y:int,y:int,name:chr) -> bool:
+            if name == "P" or name == "p":
+                if check_place(piece_list,x,y):
+                    return True
+                return False
+            if name == "B" or name == "b":
+                if abs(current_x - x) == 1:
+                    if check_place(piece_list,x,y):
+                        return True
+                    return False
+                else:
+                    x_list = []
+                    y_list = []
+                    if current_x-x > 0: x_dir = 1
+                    else: x_dir = -1
+                    if current_y-y > 0: y_dir = 1
+                    else: y_dir = -1
+                    for i in range(abs(current_x-x)-1):
+                        x_list.append(current_x+x_dir)
+                        y_list.append(current_y+y_dir)
+                    if check_sight(piece_list,x_list,y_list):
+                        return True
+                    return False
+            if name == "N" or name == "n":
+                return True
+            if name == "R" or name == "r":
+                x_dir = current_x - x
+                y_dir = current_y - y
+                if x_dir == 1 or y_dir == 1:
+                    return True
+                else:
+                    x_list = []
+                    y_list = []
+                    if x_dir != 0:
+                        for i in range(current_x-x):
+                            x_list.append(current_x + x_dir)
+                            y_list.append(y)
+                    else:
+                        for i in range(current_y-y):
+                            x_list.append(x)
+                            y_list.append(current_y + y_dir)
+                    if check_sight(piece_list,x_list,y_list):
+                        return True
+                    return False
+            if name == "Q" or name == "q":
+                if abs(current_x - x) == 1:
+                    if check_place(piece_list,x,y):
+                        return True
+                    return False
+                else:
+                    x_list = []
+                    y_list = []
+                    if current_x-x > 0: x_dir = 1
+                    else: x_dir = -1
+                    if current_y-y > 0: y_dir = 1
+                    else: y_dir = -1
+                    for i in range(abs(current_x-x)-1):
+                        x_list.append(current_x+x_dir)
+                        y_list.append(current_y+y_dir)
+                    if check_sight(piece_list,x_list,y_list):
+                        return True
+                    x_dir = current_x - x
+                    y_dir = current_y - y
+                    if x_dir == 1 or y_dir == 1:
+                        return True
+                    else:
+                        x_list = []
+                        y_list = []
+                        if x_dir != 0:
+                            for i in range(current_x-x):
+                                x_list.append(current_x + x_dir)
+                                y_list.append(y)
+                        else:
+                            for i in range(current_y-y):
+                                x_list.append(x)
+                                y_list.append(current_y + y_dir)
+                        if check_sight(piece_list,x_list,y_list):
+                            return True
+                        return False
+            if name == "K" or name == "k":
+                return True
+            if name == "E" or name == "E":
+                return True
+            return True
 
 fen_string = "rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w KQkq - 0 1"
 board_string = "rnbkqbnr/pppppppp/00000000/00000000/00000000/00000000/PPPPPPPP/RNBKQBNR"
