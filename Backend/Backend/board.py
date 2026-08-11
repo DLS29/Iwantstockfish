@@ -13,7 +13,7 @@ class board:
             else:
                 i = board.piece(x,y,i)
                 x = x+1
-    def selectpiece(self,x:int,y:int) -> None|"piece":
+    def selectpiece(self,x:int,y:int):
         for piece in self.piece_list:
             if piece.x == x and piece.y == y:
                 return piece
@@ -58,7 +58,7 @@ class board:
             return True
         def trymove(self,x:int,y:int) -> bool:
             if check_line_sight(board.piece_list,self.x,x,self.y,y,self.name) and self.piecemove(x,y):
-                check_capture(board.piece_list,x,y)
+                check_capture(board.piece_list,x,y,self.name)
                 self.x = x
                 self.y = y
                 return True
@@ -81,23 +81,22 @@ def gnrte_fen_string(board_string:str) -> str:
                 fen = fen + str(x)
                 x = 0
             fen = fen + i
+        if x != 0: fen = fen + str(x)
     fen = fen + " " + next_move + " " + castling + " " + enpasse + " " + cmove + " " + nmove
     return fen
-def gnrte_board_string(fen_board:str) -> str:
-    board_string = ""
-    for i in fen_board:
-        if i.isdigit():
-            for n in range(int(i)):
-                board_string = board_string + "0"
-        else:
-            board_string = board_string + i
-    return board_string
+def gnrte_board_ascii(piece_list) -> None:
+    x = ["00000000","00000000","00000000","00000000","00000000","00000000","00000000","00000000"]
+    for i in piece_list:
+        x[i.y] = x[i.y][:i.x] + i.name + x[i.y][i.x+1:]
+    x = x[0] + "\n" + x[1] + "\n" +  x[2] + "\n" +  x[3] + "\n" + x[4] + "\n" + x[5] + "\n" +  x[6] + "\n" +  x[7]
+    print(x)
 
-def update_board_string(piece_list:list):
+def update_fen_string(piece_list:list):
     x = ["00000000","00000000","00000000","00000000","00000000","00000000","00000000","00000000"]
     for i in piece_list:
         x[i.y] = x[i.y][:i.x] + i.name + x[i.y][i.x+1:]
     x = x[0] + "/" + x[1] + "/" +  x[2] + "/" +  x[3] + "/" + x[4] + "/" + x[5] + "/" +  x[6] + "/" +  x[7]
+    x = gnrte_fen_string(x)
     return x
 
 def check_place(piece_list:list,x:int|list,y:int|list) -> bool:
@@ -127,34 +126,30 @@ def check_line_sight(piece_list:list,current_x:int,x:int,current_y:int,y:int,nam
                 else:
                     x_list = []
                     y_list = []
-                    if current_x-x < 0: x_dir = 1
-                    else: x_dir = -1
-                    if current_y-y > 0: y_dir = 1
-                    else: y_dir = -1
-                    for i in range(abs(current_x-x)-1):
-                        x_list.append(current_x+x_dir)
-                        y_list.append(current_y+y_dir)
+                    x_dir = normalise(current_x-x)
+                    y_dir = normalise(current_y-y)
+                    for i in range(1,abs(current_x-x)):
+                        x_list.append(current_x+x_dir*i)
+                        y_list.append(current_y+y_dir*i)
                     if check_place(piece_list,x_list,y_list):
                         return True
                     return False
             if name == "N":
                 return True
             if name == "R":
-                if current_x-x > 0: x_dir = 1
-                else: x_dir = -1
-                if current_y - y > 0: y_dir = 1
-                else: y_dir = -1
-                if x_dir == 1 or y_dir == 1:
+                x_dir = normalise(current_x-x)
+                y_dir = normalise(current_y-y)
+                if abs(current_x-x) == 1 or abs(current_y-y) == 1:
                     return True
                 else:
                     x_list = []
                     y_list = []
                     if x_dir != 0:
-                        for i in range(current_x-x):
+                        for i in range(1,abs(current_x-x)):
                             x_list.append(current_x + x_dir)
                             y_list.append(y)
                     else:
-                        for i in range(current_y-y):
+                        for i in range(1,abs(current_y-y)):
                             x_list.append(x)
                             y_list.append(current_y + y_dir)
                     if check_place(piece_list,x_list,y_list):
@@ -168,28 +163,26 @@ def check_line_sight(piece_list:list,current_x:int,x:int,current_y:int,y:int,nam
                 else:
                     x_list = []
                     y_list = []
-                    if current_x-x > 0: x_dir = 1
-                    else: x_dir = -1
-                    if current_y-y > 0: y_dir = 1
-                    else: y_dir = -1
-                    for i in range(abs(current_x-x)-1):
-                        x_list.append(current_x+x_dir)
-                        y_list.append(current_y+y_dir)
+                    x_dir = normalise(current_x-x)
+                    y_dir = normalise(current_y-y)
+                    for i in range(1,abs(current_x-x)):
+                        x_list.append(current_x+x_dir*i)
+                        y_list.append(current_y+y_dir*i)
                     if check_place(piece_list,x_list,y_list):
                         return True
-                    x_dir = current_x - x
-                    y_dir = current_y - y
+                    x_dir = normalise(current_x-x)
+                    y_dir = normalise(current_y-y)
                     if x_dir == 1 or y_dir == 1:
                         return True
                     else:
                         x_list = []
                         y_list = []
                         if x_dir != 0:
-                            for i in range(current_x-x):
+                            for i in range(1,abs(current_x-x)):
                                 x_list.append(current_x + x_dir)
                                 y_list.append(y)
                         else:
-                            for i in range(current_y-y):
+                            for i in range(1,abs(current_y-y)):
                                 x_list.append(x)
                                 y_list.append(current_y + y_dir)
                         if check_place(piece_list,x_list,y_list):
@@ -200,24 +193,22 @@ def check_line_sight(piece_list:list,current_x:int,x:int,current_y:int,y:int,nam
             if name == "E":
                 return True
             return True
-def check_capture(piece_list:list,x:int,y:int) -> None:
+def check_capture(piece_list:list,x:int,y:int,name:chr) -> None:
     for i in piece_list:
-        if i.x == x and i.y == y:
+        if i.x == x and i.y == y and name.islower() != i.name.islower():
             piece_list.remove(i)
+def normalise(n:int) -> int:
+    if n==0: return 0
+    if n < 0: return 1
+    else: return -1
 
 
-
-fen_string = "rnbkqbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBKQBNR w KQkq - 0 1"
-board_string = "rnbkqbnr/pppppppp/00000000/00000000/00000000/00000000/PPPPPPPP/RNBKQBNR"
+fen_string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+board_string = "rnbqkbnr/pppppppp/00000000/00000000/00000000/00000000/PPPPPPPP/RNBQKBNR"
 fen_board,next_move,castling,enpasse,cmove,nmove = fen_string.split(" ",7)
 
-board_main = board(fen_string)
-print(*board_main.piece_list)
-print(gnrte_fen_string(board_string))
-print(gnrte_board_string(fen_board))
-pawn = board_main.selectpiece(0,1)
-r = pawn.trymove(0,5)
-print(r)
-print(pawn.x,pawn.y,pawn.name)
-print(gnrte_fen_string(board_string))
-print(update_board_string(board_main.piece_list))
+if __name__ == "__main__":
+    board_main = board(fen_string)
+    print(*board_main.piece_list)
+    print(gnrte_fen_string(board_string))
+    gnrte_board_ascii(board_main.piece_list)
