@@ -45,6 +45,7 @@ canvas.create_window(950,200,window=button, anchor="nw")
 image_references = []
 pieceid = []
 def draw_board(fen_board:str):
+    print(board_data())
     for piece in pieceid:
         canvas.delete(piece)
     pieceid.clear()
@@ -80,6 +81,11 @@ def draw_board(fen_board:str):
 def in_area(xy1:tuple,xy2:tuple) -> bool:
     return xy2[0]<=xy1[0]<=xy2[0]+xy2[2] and xy2[1]<=xy1[1]<=xy2[1]+xy2[3]
 
+def board_data():
+    fen_board,next_move,castling,enpasse,cmove,nmove = fen_string.split(" ",7)
+    fendata = [fen_board,next_move,castling,enpasse,cmove,nmove]
+    return fendata
+
 possible_moves_selected = []
 def gnrte_posible_moves(piece):
     for i in possible_moves_selected:
@@ -87,7 +93,6 @@ def gnrte_posible_moves(piece):
     possible_moves_selected.clear()
     board.gnrte_attack_square(board.board_main.piece_list)
     piece_id_pm = piece.name+str(piece.x)+str(piece.y)
-    print(board.possible_moves[piece_id_pm])
     moves = board.possible_moves.get(piece_id_pm, [])
     if moves:
         for i in board.possible_moves[piece_id_pm]:
@@ -120,7 +125,17 @@ def select_piece(event) -> None:
                 is_piece_selected = True
                 gnrte_posible_moves(selected_piece)
                 return None
+def unselect_piece(event):
+    global is_piece_selected,selected_piece
+    selected_piece = None
+    is_piece_selected = False
+    canvas.delete(selected_square)
+    for i in possible_moves_selected:
+        canvas.delete(i)
+    possible_moves_selected.clear()
 canvas.bind("<Button-1>",select_piece)
+canvas.bind("<Button-3>",unselect_piece)
+
 
 draw_board(board.fen_board)
 root.mainloop()

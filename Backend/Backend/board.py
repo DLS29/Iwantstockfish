@@ -4,7 +4,7 @@ class board:
         self.start_position = start_position
         x = 0
         y = 7
-        for i in board_string:
+        for i in start_position:
             if i == "/":
                 y = y-1
                 x = 0
@@ -29,15 +29,20 @@ class board:
             self.x = x
             self.y = y
         def piecemove(self,x:int,y:int) -> bool:
+            global enpasse
             if self.name == "P":
                 canmove = check_empty(board_main.piece_list,self.x,self.y + 1) and check_empty(board_main.piece_list,self.x,y)
-                if y - self.y == 2 and self.x == x and self.y == 1 and canmove:return True
+                if y - self.y == 2 and self.x == x and self.y == 1 and canmove:
+                    enpasse = str((x,y-1))
+                    return True
                 if y - self.y == 1 and self.x == x and check_empty(board_main.piece_list,self.x,y):return True
                 if y - self.y == 1 and abs(self.x - x) == 1 and check_capture(board.piece_list,x,y,self.name):return True
                 return False
             if self.name == "p":
                 canmove = check_empty(board_main.piece_list,self.x,self.y - 1) and check_empty(board_main.piece_list,self.x,y)
-                if self.y - y  == 2 and self.x == x and self.y == 6 and canmove:return True
+                if self.y - y  == 2 and self.x == x and self.y == 6 and canmove:
+                    enpasse = str((x,y+1))
+                    return True
                 if self.y - y == 1 and self.x == x and check_empty(board_main.piece_list,self.x,y):return True
                 if self.y - y == 1 and abs(self.x - x) == 1 and check_capture(board.piece_list,x,y,self.name):return True
                 return False
@@ -66,12 +71,23 @@ class board:
             if self.name == "E" or self.name == "E":return True
             return True
         def trymove(self,x:int,y:int) -> bool:
+            global next_move,enpasse,cmove,nmove,castling
             gnrte_attack_square(board_main.piece_list)
             line_sight = check_line_sight(board.piece_list,self.x,x,self.y,y,self.name)
             correct_move = self.piecemove(x,y)
             allowed_capture = check_capture(board_main.piece_list,x,y,self.name)or check_empty(board_main.piece_list,x,y)
-            print(self.name,line_sight,correct_move,allowed_capture,(self.x,))
+            print(self.name,line_sight,correct_move,allowed_capture,(self.x,self.y))
             if line_sight and correct_move and allowed_capture:
+                if self.name.isupper():
+                    next_move = "b"
+                    nmove = str(int(nmove) + 1)
+                else: next_move = "w"
+                if self.name.upper() != "P":
+                    cmove = "0"
+                    if enpasse != "-":
+                        enpasse = "-"
+                else:
+                    cmove = str(int(cmove) + 1)
                 self.x = x
                 self.y = y
                 capture_piece(board_main.piece_list,x,y,self.name)
@@ -126,6 +142,8 @@ def gnrte_attack_square(piece_list) -> None:
                     elif i.name != "p" and i.name.islower() == True:attacked_squares_b.add((x,y))
                     if allowed_capture:
                         possible_moves[pieceid].append((x,y))
+
+
 def update_fen_string(piece_list:list):
     x = ["00000000","00000000","00000000","00000000","00000000","00000000","00000000","00000000"]
     for i in piece_list:
@@ -206,9 +224,11 @@ def check_empty(piece_list,x:int,y:int) -> bool:
         if i.x == x and i.y == y:return False
     return True
 def capture_piece(piece_list:list,x:int,y:int,name:chr) -> None:
+    global cmove
     for i in piece_list:
         if i.x == x and i.y == y and name.islower() != i.name.islower():
             piece_list.remove(i)
+            cmove = "0"
             return None
     return None
 def normalise(n:int) -> int:
@@ -227,7 +247,7 @@ possible_moves = {}
 fen_string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 board_string = "rnbqkbnr/pppppppp/00000000/00000000/00000000/00000000/PPPPPPPP/RNBQKBNR"
 fen_board,next_move,castling,enpasse,cmove,nmove = fen_string.split(" ",7)
-board_main = board(fen_string)
+board_main = board(board_string)
 
 if __name__ == "__main__":
     print(*board_main.piece_list)
