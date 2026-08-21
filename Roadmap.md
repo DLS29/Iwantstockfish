@@ -1,8 +1,13 @@
 # Roadmap
 ## 1.
-    create python frontend that allows player to:  
-    create a board, move pieces etc 
-    create frontend GUI   
+    done: create python frontend that allows player to:  
+    done: create a board, move pieces etc 
+    done: create frontend GUI   
+    done: move backend/backend to backend  
+    done: move constance.py to root and use it more  
+    done: trymove in board.py use possible squares  
+    TODO: make checks  
+    TODO: function that allows player if their move to move and other rules  
     create cpp backend that communicates with python frontend and stockfish engine
     create custom stockfish scripting language named fishscript  
 ## 2.

@@ -72,12 +72,9 @@ class board:
             return True
         def trymove(self,x:int,y:int) -> bool:
             global next_move,enpasse,cmove,nmove,castling
-            gnrte_attack_square(board_main.piece_list)
-            line_sight = check_line_sight(board.piece_list,self.x,x,self.y,y,self.name)
-            correct_move = self.piecemove(x,y)
-            allowed_capture = check_capture(board_main.piece_list,x,y,self.name)or check_empty(board_main.piece_list,x,y)
-            print(self.name,line_sight,correct_move,allowed_capture,(self.x,self.y))
-            if line_sight and correct_move and allowed_capture:
+            generate_correct_moves(board_main.piece_list)
+            pieceid = self.name+str(self.x)+str(self.y)
+            if (x,y) in possible_moves[pieceid]:
                 if self.name.isupper():
                     next_move = "b"
                     nmove = str(int(nmove) + 1)
@@ -120,12 +117,11 @@ def gnrte_board_ascii(piece_list) -> None:
         x[i.y] = x[i.y][:i.x] + i.name + x[i.y][i.x+1:]
     x = x[0] + "\n" + x[1] + "\n" +  x[2] + "\n" +  x[3] + "\n" + x[4] + "\n" + x[5] + "\n" +  x[6] + "\n" +  x[7]
     print(x)
-def gnrte_attack_square(piece_list) -> None:
-    attacked_squares_w.clear()
-    attacked_squares_b.clear()
-    for i in piece_list:
-        pieceid = i.name+str(i.x)+str(i.y)
-        possible_moves[pieceid] = []
+def king_in_check(piece_list) -> bool:
+    pass
+def generate_correct_moves(piece_list) -> None:
+    def gnrte_attack_square(piece_list):
+        piece_possible_moves = []
         if i.name == "P":
             attacked_squares_w.add((i.x-1,i.y+1))
             attacked_squares_w.add((i.x+1,i.y+1))
@@ -141,9 +137,21 @@ def gnrte_attack_square(piece_list) -> None:
                     if i.name != "P" and i.name.islower() == False:attacked_squares_w.add((x,y))
                     elif i.name != "p" and i.name.islower() == True:attacked_squares_b.add((x,y))
                     if allowed_capture:
-                        possible_moves[pieceid].append((x,y))
-
-
+                        piece_possible_moves.append((x,y))
+        return piece_possible_moves
+    possible_moves = {}
+    attacked_squares_w.clear()
+    attacked_squares_b.clear()
+    for i in piece_list:
+        pieceid = i.name+str(i.x)+str(i.y)
+        possible_moves[pieceid] = gnrte_attack_square(piece_list)
+        n = pieceid[0].isupper()
+        if n:
+            for i in possible_moves[pieceid]:
+                if 0:
+                    pass
+           
+               
 def update_fen_string(piece_list:list):
     x = ["00000000","00000000","00000000","00000000","00000000","00000000","00000000","00000000"]
     for i in piece_list:
@@ -252,4 +260,4 @@ board_main = board(board_string)
 if __name__ == "__main__":
     print(*board_main.piece_list)
     gnrte_board_ascii(board_main.piece_list)
-    gnrte_attack_square(board_main.piece_list)
+    generate_correct_moves(board_main.piece_list)

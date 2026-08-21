@@ -44,7 +44,7 @@ function ; creates funcion with arguments
 <,>,<=,>= ; are supported too  
 &,|,^,!,!&,!|,!^ ; and,or,xor,not,nand,nor,xnor are supported
 
-# Examples:  
+## Examples:  
 defines: (
     define player p
     define stockfish s
@@ -66,7 +66,7 @@ script: (
 
     else{return(s.mov[0])}
     );  
-# Explanation:  
+## Explanation:  
 firstly if possition for player is weak we change depth and we change difficulty by subtracting
 we check if players last move was the best by checking if move rank was 0  
 then if it's true stockfish makes the worst possible move if not play the best move

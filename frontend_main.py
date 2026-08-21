@@ -1,8 +1,8 @@
 import tkinter as tk
 import subprocess as sp
 from PIL import Image,ImageTk
-import Frontend.constance as constance
-import Backend.Backend.board as board
+import constance as constance
+import Backend.board as board
 
 #board rendering will be done with FEN string for now
 root = tk.Tk()
@@ -45,7 +45,6 @@ canvas.create_window(950,200,window=button, anchor="nw")
 image_references = []
 pieceid = []
 def draw_board(fen_board:str):
-    print(board_data())
     for piece in pieceid:
         canvas.delete(piece)
     pieceid.clear()
@@ -80,11 +79,6 @@ def draw_board(fen_board:str):
 
 def in_area(xy1:tuple,xy2:tuple) -> bool:
     return xy2[0]<=xy1[0]<=xy2[0]+xy2[2] and xy2[1]<=xy1[1]<=xy2[1]+xy2[3]
-
-def board_data():
-    fen_board,next_move,castling,enpasse,cmove,nmove = fen_string.split(" ",7)
-    fendata = [fen_board,next_move,castling,enpasse,cmove,nmove]
-    return fendata
 
 possible_moves_selected = []
 def gnrte_posible_moves(piece):
